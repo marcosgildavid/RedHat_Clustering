@@ -154,16 +154,19 @@ must allow ssh login in your sshd_config."
 	for host in hosts.split(","):
 		if (fenced==0):
 			options["-a"]=host
-			conn = fence_login(options)	
+			conn = fence_login(options)
+			#create temp user
 			create_virtsh_user(conn,options)
 			if (check_for_vm(conn,options)==1):
 				#restart the vm if it is found
 				result = fence_action(conn, options, set_power_status, get_power_status, get_outlets_status)
+				#assume fence was sucessful
 				fenced=1
 			
-			## Logout from system
+			# delete temp user
 			delete_virtsh_user(conn,options)
 			try:
+				# logout from the hypervisor
 				conn.sendline("quit")
 				conn.close()
 			except exceptions.OSError:
